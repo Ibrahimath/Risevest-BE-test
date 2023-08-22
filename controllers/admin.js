@@ -36,7 +36,7 @@ const markFiles =async(req,res) => {
             where: {file_id:file_id},
             
         })
-        console.log("AAA" +file);
+        console.log("AA" +file);
     file.safe = !safe
         res.status(200).json({
             status: true,
