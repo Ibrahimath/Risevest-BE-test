@@ -3,8 +3,10 @@ const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
 
+const port = process.env.PORT
+
 app.use(bodyParser.json())
-app.use('/api/v1', routes)
+//app.use('/api/v1', routes)
 
 app.use((req, res) => { 
     res.status(404).json({
