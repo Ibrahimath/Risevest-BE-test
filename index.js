@@ -2,7 +2,7 @@ require('dotenv').config()
 const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
-const port = process.env.PORT
+const port = process.env.PORT || 3100
 const {sequelize} = require('./models')
 const userRoutes = require('./routes/user')
 const adminRoutes = require('./routes/admin')
