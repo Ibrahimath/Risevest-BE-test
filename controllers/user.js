@@ -81,22 +81,26 @@ try{
 const getOneFile = async(req, res) => {
     
         try {
-            const {user_id, file_id} =req.body
+            const {user_id, file_id, email} =req.body
             if(!file_id|| !user_id){
                 throw new Error('please let us know you and the file you are looking for')
             }
             const file = await db.Files.findOne({
-                attributes:[safe],
+                //attributes:['safe'],
                 where: {
                     [Op.and]: [{ user_id: user_id }, { file_id: file_id}]
                 }
             });
+
+            console.log("AAAA"+file.user_id);
+
             if(!file) {
                 throw new Error(`Couldn't find file`)
             }
             if (file.safe === false){
                 throw new Error(`This file is not safe for you`)
             }
+            
             res.status(200).json({
                 status: true,
                 message: 'file retrieved successfully',

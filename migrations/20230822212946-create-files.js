@@ -22,7 +22,8 @@ module.exports = {
         type: Sequelize.STRING
       },
       safe: {
-        type: Sequelize.BOOLEAN
+        type: Sequelize.BOOLEAN,
+        defaultValue: true,
       },
       createdAt: {
         allowNull: false,
