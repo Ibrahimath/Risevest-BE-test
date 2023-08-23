@@ -86,6 +86,7 @@ const getOneFile = async(req, res) => {
                 throw new Error('please let us know you and the file you are looking for')
             }
             const file = await db.Files.findOne({
+                attributes:[safe],
                 where: {
                     [Op.and]: [{ user_id: user_id }, { file_id: file_id}]
                 }
