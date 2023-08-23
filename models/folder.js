@@ -14,8 +14,8 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Folder.init({
-    Name: DataTypes.STRING,
-    user_id: DataTypes.UUID,
+    folderName: DataTypes.STRING,
+    email: DataTypes.STRING,
     folder_id: DataTypes.UUID
   }, {
     sequelize,

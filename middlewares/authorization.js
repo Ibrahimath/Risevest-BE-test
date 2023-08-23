@@ -1,6 +1,6 @@
 require('dotenv').config()
 const jwt = require('jsonwebtoken');
-const models = require('../models')
+const {db} = require('../models')
 
 const authorization = (req, res, next) => {
 
@@ -22,10 +22,9 @@ const authorization = (req, res, next) => {
                     return
                 }
            
-            const userData = await models.Users.findOne({ where: { email_address: decoded.email } })
-            if (userData == null) throw new Error('Unauthorized Access')
+            const userData = await db.User.findOne({ where: { email: decoded.email } })
+            if (userData == null) throw new Error('user not found')
            
-            req.params.customerEmail = decoded.email
             req.params.user_id = userData.dataValues.user_id
             next()
         })

@@ -1,14 +1,16 @@
 require('dotenv').config()
-const aws = require('aws-sdk');
-const multer = require('multer');
-const multerS3 = require('multer-s3');
-const {db} = require('../models');
 const { Op } = require('sequelize');
-const { hashPassword, comparePassword } = require('../utils/helpers');
 const { v4: uuidv4 } = require('uuid');
-const jwt = require('jsonwebtoken');   
+const jwt = require('jsonwebtoken'); 
+const fileUpload = require('express-fileupload')
+const { Dropbox } = require('dropbox');  
 
+
+const {db} = require('../models');
+const { hashPassword, comparePassword } = require('../utils/helpers');
 const {validateRegister, validateFile} = require('../validations');
+
+
 
 
 const register = async(req,res) => {
@@ -102,38 +104,42 @@ const register = async(req,res) => {
             });
         }
     }
-
-const uploadFile = async (req, res) => {
-try{
-    const validateData = validateFile(req.body);
-        if (validateData.error) {
-            res.status(400)
-           
-            throw new Error(validateData.error.details[0].message);
-        }
-        const {user_id, fileName,file_url} = req.body
-        const newFile = await db.Files.create({
-            user_id: user_id,
-            file_id: uuidv4(),
-            fileName: fileName,
-             file_url: file_url
-        })
-        res.status(201).json({
-            status: true,
-            message: 'file uploaded successfully',
-        })
-    }catch (err) { 
-        res.status(500).json({
-            status: false,
-            message: err.message || 'Something went wrong'
-        });
-    }
-}
     
-const upload = (req, res) => {
-    res.json({ message: 'File uploaded successfully' });
-  };
+const upload = async(req, res) => {
+    const dbx = new Dropbox({ accessToken: "sl.Bksn6wH17lzLCXC1APHzdibwTZBbv3rmWG314mCNo2PSAw5dV77XGBsV7TDjn1BWeRQdPKW6bPWDai4e7bPeDTcn4tEQjWn8hmafBol6EpXlUxkDo_WQ-P4vNLdOJL9t_EljQvugZXaw" })
+    const  email  = req.params.email;
+  const file = req.files.file;
+  const folderPath = `/${email}`;
+  const filePath = `${folderPath}/${file.name}`;
+  const fileStream = file.data;
+ // const token = "sl.Bksn6wH17lzLCXC1APHzdibwTZBbv3rmWG314mCNo2PSAw5dV77XGBsV7TDjn1BWeRQdPKW6bPWDai4e7bPeDTcn4tEQjWn8hmafBol6EpXlUxkDo_WQ-P4vNLdOJL9t_EljQvugZXaw"
+//   const requestOptions = {
+//     headers: {
+//       Authorization: `Bearer ${token}`
+//     }
+//   };
 
+  await dbx.filesUpload({ path: filePath, contents: fileStream });
+
+  res.json({
+    "status":"true",
+    "message":'File uploaded successfully!'});
+  return
+}
+
+const download = async (req, res) => {
+        const { email, filename } = req.params;
+        
+        const dbx = new Dropbox({ accessToken: "sl.Bksn6wH17lzLCXC1APHzdibwTZBbv3rmWG314mCNo2PSAw5dV77XGBsV7TDjn1BWeRQdPKW6bPWDai4e7bPeDTcn4tEQjWn8hmafBol6EpXlUxkDo_WQ-P4vNLdOJL9t_EljQvugZXaw" })
+
+        const filePath = `/${email}/${filename}`;
+        const { result } = await dbx.filesDownload({ path: filePath });
+      
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        res.setHeader('Content-Type', 'application/octet-stream');
+        res.send(result.fileBinary);
+        return
+      }
 
 const getOneFile = async(req, res) => {
     
@@ -148,8 +154,6 @@ const getOneFile = async(req, res) => {
                     [Op.and]: [{ user_id: user_id }, { file_id: file_id}]
                 }
             });
-
-            console.log("AAAA"+file.user_id);
 
             if(!file) {
                 throw new Error(`Couldn't find file`)
@@ -174,10 +178,65 @@ const getOneFile = async(req, res) => {
             })
         }
     }
+
+ const createFolder = async(req, res) => {
+     const {email, folderName } = req.body
+     if(!email || !folderName){
+        throw new Error(`Couldn't create folder due to incomplete credentials`)
+     }
+     const user = await db.User.findOne({
+        //attributes:['safe'],
+        where:
+            { email:email }
+    });
+    if (!user) {
+        throw new Error("user not found")
+    }
+    await db.Folder.create({
+        email,
+        folderName,
+        folder_id: uuidv4()
+    })
+ }    
+
+ const addToFolder = async(req,res) => {
+    const{filePath, email} = req.body
+    if(!email || !filePath || !folderName){
+        throw new Error(`Couldn't add to folder due to incomplete credentials`)
+     }
+     const findUser = await db.User.findOne({
+        where:
+            { email:email }
+    });
+    if (!findUser) {
+        throw new Error("user not found")
+    }
+    const findFolder = await db.Folder.findOne({
+        where: {
+            [Op.and]: [{ folderName }, { email}]
+        }
+    });
+    if (!findFolder) {
+        throw new Error("folder not found")
+    }
+    await db.Folder.create({
+        email,
+        folderName,
+        folder_id: uuidv4()
+    })
+
+    res.status(200).json({
+        status: true,
+        message: "Folder created successfully"
+    })
+    return
+ }
 module.exports ={
     register,
     getOneFile,
-    uploadFile,
     login,
-    upload
+    upload,
+    download,
+    createFolder,
+    addToFolder
 }
