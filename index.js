@@ -20,7 +20,7 @@ app.use((req, res) => {
     })
 })
 sequelize.authenticate().then(app.listen(port, () => {
-    console.log(`Server running on port ${port}`)
+    console.log(`running on port ${port}`)
  }))
 
 
