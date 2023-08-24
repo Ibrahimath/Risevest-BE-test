@@ -16,7 +16,7 @@ app.use('/api/v1/admin', adminRoutes)
 app.use((req, res) => { 
     res.status(404).json({
         status: false,
-        message: "not found",
+        message: "page not found",
     })
 })
 sequelize.authenticate().then(app.listen(port, () => {

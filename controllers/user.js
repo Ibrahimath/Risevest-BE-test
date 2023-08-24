@@ -106,7 +106,7 @@ const register = async(req,res) => {
     }
     
 const upload = async(req, res) => {
-    const dbx = new Dropbox({ accessToken: "sl.Bksn6wH17lzLCXC1APHzdibwTZBbv3rmWG314mCNo2PSAw5dV77XGBsV7TDjn1BWeRQdPKW6bPWDai4e7bPeDTcn4tEQjWn8hmafBol6EpXlUxkDo_WQ-P4vNLdOJL9t_EljQvugZXaw" })
+    const dbx = new Dropbox({ accessToken: process.env.DROPBOX_ACCESS_TOKEN })
     const  email  = req.params.email;
   const file = req.files.file;
   const folderPath = `/${email}`;
@@ -128,9 +128,10 @@ const upload = async(req, res) => {
 }
 
 const download = async (req, res) => {
+    try{
         const { email, filename } = req.params;
         
-        const dbx = new Dropbox({ accessToken: "sl.Bksn6wH17lzLCXC1APHzdibwTZBbv3rmWG314mCNo2PSAw5dV77XGBsV7TDjn1BWeRQdPKW6bPWDai4e7bPeDTcn4tEQjWn8hmafBol6EpXlUxkDo_WQ-P4vNLdOJL9t_EljQvugZXaw" })
+        const dbx = new Dropbox({ accessToken: process.env.DROPBOX_ACCESS_TOKEN })
 
         const filePath = `/${email}/${filename}`;
         const { result } = await dbx.filesDownload({ path: filePath });
@@ -139,6 +140,12 @@ const download = async (req, res) => {
         res.setHeader('Content-Type', 'application/octet-stream');
         res.send(result.fileBinary);
         return
+    }catch(e) {
+        res.json({
+            status: false,
+            message: e.message
+        })
+    }
       }
 
 const getOneFile = async(req, res) => {
