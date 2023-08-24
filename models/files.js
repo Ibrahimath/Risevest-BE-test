@@ -15,9 +15,8 @@ module.exports = (sequelize, DataTypes) => {
   }
   Files.init({
     file_id: DataTypes.UUID,
-    user_id: DataTypes.UUID,
-    fileName: DataTypes.STRING,
-    file_url: DataTypes.STRING,
+    email: DataTypes.STRING,
+    filePath: DataTypes.STRING,
     safe: DataTypes.BOOLEAN
   }, {
     sequelize,

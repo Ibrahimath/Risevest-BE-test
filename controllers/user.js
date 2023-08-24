@@ -32,7 +32,7 @@ const register = async(req,res) => {
             throw new Error('User already exists');
         }
             let isAdmin;
-        email.indexOf('@rise') !== -1 ? isAdmin = true: false
+        email.indexOf('@rise.com') !== -1 ? isAdmin = true: false
        const { hash, salt } = await hashPassword(password);
         const newUser = await db.User.create({
             user_id: uuidv4(),
@@ -112,12 +112,13 @@ const upload = async(req, res) => {
     const  email  = req.params.email;
   const file = req.files.file;
   if(!file ||!email) {
-    throw new Error("please provide your both email and file to upload")
+    throw new Error("please provide both email and file to upload")
   }
   const user = await db.User.findOne({
     where:
         { email:email }
 });
+
 if (!user) {
     throw new Error("user not registered")
 }
@@ -125,14 +126,13 @@ if (!user) {
   const folderPath = `/${email}`;
   const filePath = `${folderPath}/${file.name}`;
   const fileStream = file.data;
- // const token = "sl.Bksn6wH17lzLCXC1APHzdibwTZBbv3rmWG314mCNo2PSAw5dV77XGBsV7TDjn1BWeRQdPKW6bPWDai4e7bPeDTcn4tEQjWn8hmafBol6EpXlUxkDo_WQ-P4vNLdOJL9t_EljQvugZXaw"
-//   const requestOptions = {
-//     headers: {
-//       Authorization: `Bearer ${token}`
-//     }
-//   };
 
   await dbx.filesUpload({ path: filePath, contents: fileStream });
+  await db.Files.create({
+    email,
+    file_id: uuidv4(),
+    filePath
+})
 
   res.json({
     "status":true,
@@ -140,14 +140,17 @@ if (!user) {
   return
     }catch(e) {
         res.json({
-            status: true,
+            status: false,
             message:e.message})
     }
 }
 
 const download = async (req, res) => {
     try{
-        const { email, filename } = req.params;
+        const { email, fileName } = req.params;
+        if(!fileName ||!email) {
+            throw new Error("please provide both email and fileName")
+          }
         const user = await db.User.findOne({
             where:
                 { email:email }
@@ -158,10 +161,10 @@ const download = async (req, res) => {
         
         const dbx = new Dropbox({ accessToken: process.env.DROPBOX_ACCESS_TOKEN })
 
-        const filePath = `/${email}/${filename}`;
+        const filePath = `/${email}/${fileName}`;
         const { result } = await dbx.filesDownload({ path: filePath });
       
-        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        res.setHeader('Content-Disposition', `attachment; fileName="${fileName}"`);
         res.setHeader('Content-Type', 'application/octet-stream');
         res.send(result.fileBinary);
         return
@@ -202,7 +205,7 @@ const getOneFile = async(req, res) => {
                 message: 'file retrieved successfully',
                 data: file
             })
-        
+        return
         } catch (err) {
             res.status(500).json({
                 status: false,
@@ -212,6 +215,7 @@ const getOneFile = async(req, res) => {
     }
 
  const createFolder = async(req, res) => {
+    try{
      const {email, folderName } = req.body
      if(!email || !folderName){
         throw new Error(`Couldn't create folder due to incomplete credentials`)
@@ -228,6 +232,19 @@ const getOneFile = async(req, res) => {
         folderName,
         folder_id: uuidv4()
     })
+
+    res.status(200).json({
+        status: true,
+        message: 'folder created successfully',
+        data: file
+    })
+ return
+}catch (e) {
+    res.status(500).json({
+        status: false,
+        error: e.message
+    })
+}
  }    
 
  const addToFolder = async(req,res) => {
