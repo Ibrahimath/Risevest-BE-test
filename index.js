@@ -23,4 +23,4 @@ sequelize.authenticate().then(app.listen(port, () => {
     console.log(`running on port ${port}`)
  }))
 
-
+ module.exports = app
