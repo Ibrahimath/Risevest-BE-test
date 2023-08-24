@@ -61,10 +61,9 @@ const register = async(req,res) => {
         const { email, password } = req.body
         try { 
             if (!email || !password) {
-                res.status(400)
+                res.status(401)
                 throw new Error('All fields are required');
             } 
-            //check if the user already exists
             const user = await db.User.findOne({
                 where: {
                     email: email
@@ -73,14 +72,14 @@ const register = async(req,res) => {
     
          
             if (!user) {
-                res.status(400)
+                res.status(401)
                 throw new Error('Invalid credentials');
             }
             
             
             const checkPasssword = await comparePassword(password, user.dataValues.passwordHash)
             if (!checkPasssword) {
-                res.status(400)
+                res.status(401)
                 throw new Error('Invalid credentials');
             };
             
