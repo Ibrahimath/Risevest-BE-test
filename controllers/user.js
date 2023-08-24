@@ -87,7 +87,7 @@ const register = async(req,res) => {
             const token = jwt.sign({
                 email: user.dataValues.email,
                 _id: uuidv4()
-            }, process.env.JWT_SECRET, { expiresIn: '1h' });
+            }, process.env.JWT_SECRET, { expiresIn: '10d' });
     
             res.status(200).json({
                 status: true,
@@ -175,43 +175,6 @@ const download = async (req, res) => {
     }
       }
 
-const getOneFile = async(req, res) => {
-    
-        try {
-            const {user_id, file_id, email} =req.body
-            if(!file_id|| !user_id){
-                throw new Error('please let us know you and the file you are looking for')
-            }
-            const file = await db.Files.findOne({
-                //attributes:['safe'],
-                where: {
-                    [Op.and]: [{ user_id: user_id }, { file_id: file_id}]
-                }
-            });
-
-            if(!file) {
-                throw new Error(`Couldn't find file`)
-            }
-            if (file.safe === false){
-                throw new Error(`This file is not safe for you`)
-            }
-            
-            delete file.dataValues.user_id;
-            delete file.dataValues.file_id;
-            
-            res.status(200).json({
-                status: true,
-                message: 'file retrieved successfully',
-                data: file
-            })
-        return
-        } catch (err) {
-            res.status(500).json({
-                status: false,
-                error: err.message
-            })
-        }
-    }
 
  const createFolder = async(req, res) => {
     try{
@@ -226,64 +189,38 @@ const getOneFile = async(req, res) => {
     if (!user) {
         throw new Error("user not found")
     }
+
+    const findFolder = await db.Folder.findOne({
+        where: { folderName:folderName }
+    })
+
+    if (findFolder) {
+        throw new Error("Folder already exists")
+    }
     await db.Folder.create({
         email,
         folderName,
         folder_id: uuidv4()
     })
 
-    res.status(200).json({
+    res.status(201).json({
         status: true,
-        message: 'folder created successfully',
-        data: file
+        message: 'Folder created successfully'
     })
  return
 }catch (e) {
-    res.status(500).json({
+    res.status(401).json({
         status: false,
         error: e.message
     })
 }
  }    
 
- const addToFolder = async(req,res) => {
-    const{filePath, email} = req.body
-    if(!email || !filePath || !folderName){
-        throw new Error(`Couldn't add to folder due to incomplete credentials`)
-     }
-     const findUser = await db.User.findOne({
-        where:
-            { email:email }
-    });
-    if (!findUser) {
-        throw new Error("user not found")
-    }
-    const findFolder = await db.Folder.findOne({
-        where: {
-            [Op.and]: [{ folderName }, { email}]
-        }
-    });
-    if (!findFolder) {
-        throw new Error("folder not found")
-    }
-    await db.Folder.create({
-        email,
-        folderName,
-        folder_id: uuidv4()
-    })
-
-    res.status(200).json({
-        status: true,
-        message: "Folder created successfully"
-    })
-    return
- }
+ 
 module.exports ={
     register,
-    getOneFile,
     login,
     upload,
     download,
-    createFolder,
-    addToFolder
+    createFolder
 }
