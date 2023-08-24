@@ -106,9 +106,22 @@ const register = async(req,res) => {
     }
     
 const upload = async(req, res) => {
+    try{
+        
     const dbx = new Dropbox({ accessToken: process.env.DROPBOX_ACCESS_TOKEN })
     const  email  = req.params.email;
   const file = req.files.file;
+  if(!file ||!email) {
+    throw new Error("please provide your both email and file to upload")
+  }
+  const user = await db.User.findOne({
+    where:
+        { email:email }
+});
+if (!user) {
+    throw new Error("user not registered")
+}
+
   const folderPath = `/${email}`;
   const filePath = `${folderPath}/${file.name}`;
   const fileStream = file.data;
@@ -122,14 +135,26 @@ const upload = async(req, res) => {
   await dbx.filesUpload({ path: filePath, contents: fileStream });
 
   res.json({
-    "status":"true",
+    "status":true,
     "message":'File uploaded successfully!'});
   return
+    }catch(e) {
+        res.json({
+            status: true,
+            message:e.message})
+    }
 }
 
 const download = async (req, res) => {
     try{
         const { email, filename } = req.params;
+        const user = await db.User.findOne({
+            where:
+                { email:email }
+        });
+        if (!user) {
+            throw new Error("user not found")
+        }
         
         const dbx = new Dropbox({ accessToken: process.env.DROPBOX_ACCESS_TOKEN })
 
@@ -192,7 +217,6 @@ const getOneFile = async(req, res) => {
         throw new Error(`Couldn't create folder due to incomplete credentials`)
      }
      const user = await db.User.findOne({
-        //attributes:['safe'],
         where:
             { email:email }
     });
