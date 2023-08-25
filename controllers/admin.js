@@ -6,7 +6,7 @@ const {db} = require('../models');
 
 const {validateFile} = require('../validations');
 
-const allFiles = async (req, res) => {
+const getAllFiles = async (req, res) => {
     try {
         const files = await db.Files.findAll();
         res.status(200).json({
@@ -51,6 +51,6 @@ const markFiles =async(req,res) => {
 } 
 
 module.exports = {
-    allFiles,
+    getAllFiles,
     markFiles
 }

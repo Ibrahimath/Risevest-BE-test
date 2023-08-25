@@ -1,28 +1,28 @@
-require('dotenv').config()
-const express = require('express')
-const app = express()
-const bodyParser = require('body-parser')
-const port = process.env.PORT || 3100
-const {sequelize} = require('./models')
-const userRoutes = require('./routes/user')
-const adminRoutes = require('./routes/admin')
-const fileUpload = require('express-fileupload');
+require("dotenv").config();
+const express = require("express");
+const app = express();
+const bodyParser = require("body-parser");
+const port = process.env.PORT || 3100;
+const { sequelize } = require("./models");
+const userRoutes = require("./routes/user");
+const adminRoutes = require("./routes/admin");
+const fileUpload = require("express-fileupload");
 
-app.use(bodyParser.json())
-app.use(fileUpload({limits : { fileSize: 200 * 1024 * 1024 }}))
-app.use('/api/v1', userRoutes)
-app.use('/api/v1/admin', adminRoutes)
+app.use(bodyParser.json());
+app.use(fileUpload({ limits: { fileSize: 200 * 1024 * 1024 } }));
+app.use("/api/v1", userRoutes);
+app.use("/api/v1/admin", adminRoutes);
 
-app.use((req, res) => { 
-    res.status(404).json({
-        status: false,
-        message: "page not found",
-    })
-})
+app.use((req, res) => {
+  res.status(404).json({
+    status: false,
+    message: "page not found",
+  });
+});
 sequelize.authenticate().then(
-    app.listen(port, () => {
-    console.log(`running on port ${port}`)
- })
- )
+  app.listen(port, () => {
+    console.log(`running on port ${port}`);
+  })
+);
 
- module.exports = app
+module.exports = app;
