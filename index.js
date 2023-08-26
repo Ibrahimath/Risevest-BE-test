@@ -24,10 +24,10 @@ app.use((req, res) => {
     message: "page not found",
   });
 });
-//sequelize.authenticate().then(
+sequelize.authenticate().then(
   app.listen(port, () => {
     console.log(`running on port ${port}`);
   })
-//);
+);
 
 module.exports = app;
