@@ -25,7 +25,7 @@ const register = async (req, res) => {
       throw new Error("User already exists");
     }
     let isAdmin;
-    email.indexOf("@rise.com") !== -1 ? isAdmin = true : false;
+    email.indexOf("@rise.com") !== -1 ? (isAdmin = true) : false;
     const { hash, salt } = await hashPassword(password);
     const newUser = await db.User.create({
       user_id: uuidv4(),
@@ -35,13 +35,13 @@ const register = async (req, res) => {
       passwordHash: hash,
       passwordSalt: salt,
     });
-    delete newUser.dataValues.user_id
-    delete newUser.dataValues.passwordHash
-    delete newUser.dataValues.passwordSalt
+    delete newUser.dataValues.user_id;
+    delete newUser.dataValues.passwordHash;
+    delete newUser.dataValues.passwordSalt;
     res.status(201).json({
       status: true,
       message: "User created successfully",
-      data: newUser.dataValues
+      data: newUser.dataValues,
     });
   } catch (err) {
     res.status(401).json({
@@ -108,7 +108,7 @@ const upload = async (req, res) => {
     const dbx = new Dropbox({ accessToken: process.env.DROPBOX_ACCESS_TOKEN });
     const email = req.params.email;
     const file = req.files.file;
-    
+
     if (!file || !email) {
       throw new Error("please provide both email and file to upload");
     }
