@@ -5,8 +5,7 @@ const {
   download,
   login,
   upload,
-  createFolder,
-  addToFolder,
+  createFolder
 } = require("../controllers/user");
 const { authorization } = require("../middlewares/authorization");
 
