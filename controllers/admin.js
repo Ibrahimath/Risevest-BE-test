@@ -4,7 +4,7 @@ const { db } = require("../models");
 //const { v4: uuidv4 } = require('uuid');
 //const jwt = require('jsonwebtoken');
 
-const { validateFile } = require("../validations");
+const { validateFile } = require("../Validations");
 
 const getAllFiles = async (req, res) => {
   try {

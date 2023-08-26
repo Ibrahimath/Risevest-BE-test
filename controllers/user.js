@@ -6,7 +6,7 @@ const { Dropbox } = require("dropbox");
 
 const { db } = require("../models");
 const { hashPassword, comparePassword } = require("../utils/helpers");
-const { validateRegister, validateFile } = require("../validations");
+const { validateRegister, validateFile } = require("../Validations");
 
 const register = async (req, res) => {
   try {
