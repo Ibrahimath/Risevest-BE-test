@@ -23,21 +23,30 @@ const getAllFiles = async (req, res) => {
 };
 
 const markFiles = async (req, res) => {
-  const { file_id } = req.params;
 
   try {
-    const { file_id } = req.body;
-    if (!file_id) {
+    const { filePath, email } = req.body;
+
+    if (!filePath) {
       throw new Error("please let us know what you want to mark");
     }
 
     const file = await db.Files.findOne({
-      where: { file_id: file_id },
+      where: { filePath: filePath },
     });
-    file.safe = !safe;
+    
+    file.dataValues.safe = !file.dataValues.safe;
+    
+
+    await db.Files.update({ safe: file.dataValues.safe }, {
+      where: {
+        filePath
+      }
+    });
     res.status(200).json({
       status: true,
       message: "File marked successfully",
+      safe:file.dataValues.safe
     });
   } catch (err) {
     res.status(500).json({

@@ -1,11 +1,18 @@
-const isAdmin = async (req, res, next) => {
+const isAdmin = (req, res, next) => {
   try {
-    if (req.body.email.indexOf("@rise.com") === -1) {
+    if (!req.body.email || req.body.email.indexOf("@rise.com") === -1) {
       res.json({
         status: false,
         message: "Sorry, you are not allowed here",
       });
+      return
     }
     next();
-  } catch (err) {}
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+module.exports = {
+  isAdmin
 };
