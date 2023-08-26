@@ -5,7 +5,7 @@ const isAdmin = (req, res, next) => {
         status: false,
         message: "Sorry, you are not allowed here",
       });
-      return
+      return;
     }
     next();
   } catch (err) {
@@ -14,5 +14,5 @@ const isAdmin = (req, res, next) => {
 };
 
 module.exports = {
-  isAdmin
+  isAdmin,
 };
