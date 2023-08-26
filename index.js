@@ -1,12 +1,17 @@
+
+// packages
 require("dotenv").config();
 const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
-const port = process.env.PORT || 3100;
 const { sequelize } = require("./models");
+const fileUpload = require("express-fileupload");
+
+
+const port = process.env.PORT || 3100;
 const userRoutes = require("./routes/user");
 const adminRoutes = require("./routes/admin");
-const fileUpload = require("express-fileupload");
+
 
 app.use(bodyParser.json());
 app.use(fileUpload({ limits: { fileSize: 200 * 1024 * 1024 } }));

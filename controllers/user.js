@@ -1,8 +1,7 @@
 require("dotenv").config();
-const { Op } = require("sequelize");
+//const { Op } = require("sequelize");
 const { v4: uuidv4 } = require("uuid");
 const jwt = require("jsonwebtoken");
-const fileUpload = require("express-fileupload");
 const { Dropbox } = require("dropbox");
 
 const { db } = require("../models");

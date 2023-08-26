@@ -1,3 +1,4 @@
+// App doesn't run until connection to db is established
 const chai = require("chai");
 const chaiHttp = require("chai-http");
 const app = require("../index");
@@ -6,7 +7,7 @@ const email = "ade@rise.com";
 chai.use(chaiHttp);
 
 //Running the test for the second time may result
-//in two 2 of 7 failed test because some data are
+//in a few failed test because some data are
 //stored in db when it runs and it shouldn't create
 // the same data twice.
 
@@ -122,7 +123,7 @@ describe("Upload API", () => {
 
   it("should upload a file. The token would have probably expired at the time of testing but will still attempt to download", (done) => {
     const email = "ade@rise.com";
-    const filePath = "./testPic/f.png";
+    const filePath = "./test/testPic/f.png";
 
     chai
       .request(app)
@@ -134,17 +135,17 @@ describe("Upload API", () => {
         expect(res.body).to.have.property(
           "message",
           "Response failed with a 401 code"
-        );
+        )
         done();
       });
   });
 });
 
-describe("Download API", () => {
+describe("Download API", async() => {
   let accessToken =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkZUByaXNlLmNvbSIsIl9pZCI6IjU4OGI3OGNiLTE4OTYtNDMzMy1iZjkyLTUyOTMxMmEzMTlkNSIsImlhdCI6MTY5Mjk3ODk3OCwiZXhwIjoxNjkzODQyOTc4fQ.Je-WFGhf-HIuxn5mBEoergfQaUh32laf5fA072t-7IE";
 
-  it("should download a file. The token would have probably expired at the time of testing but will still attempt to download", (done) => {
+  it("should download a file. The dropbox access token would have probably expired at the time of testing but will still attempt to download, so a response from dropbox will be received", (done) => {
     const email = "ade@rise.com";
     const fileName = "f.png";
 
